@@ -17,18 +17,7 @@ export default antfu({
     "node/prefer-global/process": ["off"],
     "node/no-process-env": ["error"],
     "perfectionist/sort-imports": ["error", {
-      groups: [
-        "builtin-type",
-        "external-type",
-        "builtin",
-        "external",
-        ["parent", "sibling", "index"],
-        "internal-type",
-        "internal",
-        "type",
-      ],
-      newlinesBetween: "ignore",
-      internalPattern: ["@/**"],
+      tsconfigRootDir: ".",
     }],
     "unicorn/filename-case": ["error", {
       case: "kebabCase",

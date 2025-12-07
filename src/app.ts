@@ -1,10 +1,9 @@
-import 'dotenv/config';
-
 import type { PinoLogger } from "hono-pino";
 
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { onError } from "stoker/middlewares";
 import notFound from "stoker/middlewares/not-found";
+
 import { honoPinoLogger } from "./middlewares/pino-logger.js";
 
 interface AppBindings {
