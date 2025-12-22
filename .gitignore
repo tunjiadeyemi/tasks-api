@@ -13,6 +13,7 @@ node_modules/
 
 # env
 .env
+.env.test
 .env.production
 
 # logs
@@ -28,4 +29,5 @@ lerna-debug.log*
 .DS_Store
 
 dev.db
+test.db
 .prettierrc
