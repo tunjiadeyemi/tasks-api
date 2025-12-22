@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { createSelectSchema } from "drizzle-zod";
 
 export const tasks = sqliteTable("users_table", {
   id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
@@ -8,3 +9,5 @@ export const tasks = sqliteTable("users_table", {
   updatedAt: integer("updated_at", { mode: "timestamp" }).default(sql`(unixepoch())`),
   createdAt: integer("created_at", { mode: "timestamp" }).default(sql`(unixepoch())`),
 });
+
+export const selectTasksSchema = createSelectSchema(tasks);
