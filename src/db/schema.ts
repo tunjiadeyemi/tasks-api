@@ -1,0 +1,10 @@
+import { sql } from "drizzle-orm";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+
+export const tasks = sqliteTable("users_table", {
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  done: integer("done", { mode: "boolean" }).notNull().default(false),
+  name: text("name").notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).default(sql`(unixepoch())`),
+  createdAt: integer("created_at", { mode: "timestamp" }).default(sql`(unixepoch())`),
+});
