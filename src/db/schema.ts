@@ -7,19 +7,30 @@ export const tasks = sqliteTable('users_table', {
   done: integer('done', { mode: 'boolean' }).notNull().default(false),
   name: text('name').notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`)
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
 export const selectTasksSchema = createSelectSchema(tasks);
 
 export const insertTasksSchema = createInsertSchema(tasks, {
-  name: (schema) => schema.min(1).max(200)
+  name: schema => schema.min(1).max(200),
 })
   .required({
-    done: true
+    done: true,
   })
   .omit({
     id: true,
     createdAt: true,
-    updatedAt: true
+    updatedAt: true,
   });
+
+export const selectTaskSchema = createInsertSchema(tasks, {
+  id: schema => schema.min(1).max(200),
+})
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  });
+
+export const patchTaskSchema = insertTasksSchema.partial();

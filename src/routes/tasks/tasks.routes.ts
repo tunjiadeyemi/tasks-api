@@ -1,9 +1,10 @@
 import { createRoute, z } from '@hono/zod-openapi';
 import * as HttpStatusCodes from 'stoker/http-status-codes';
-import { jsonContent, jsonContentRequired } from 'stoker/openapi/helpers';
+import { jsonContent, jsonContentOneOf, jsonContentRequired } from 'stoker/openapi/helpers';
+import { createErrorSchema, IdParamsSchema } from 'stoker/openapi/schemas';
 
-import { insertTasksSchema, selectTasksSchema } from '@/db/schema';
-import { createErrorSchema } from 'stoker/openapi/schemas';
+import { insertTasksSchema, patchTaskSchema, selectTasksSchema } from '@/db/schema';
+import { notFoundSchema } from '@/lib/constants';
 
 const tags = ['Tasks'];
 
@@ -12,26 +13,89 @@ export const list = createRoute({
   method: 'get',
   tags,
   responses: {
-    [HttpStatusCodes.OK]: jsonContent(z.array(selectTasksSchema), 'List of tasks')
-  }
+    [HttpStatusCodes.OK]: jsonContent(z.array(selectTasksSchema), 'List of tasks'),
+  },
 });
 
 export const create = createRoute({
   path: '/tasks',
   method: 'post',
   request: {
-    body: jsonContentRequired(insertTasksSchema, 'The task to create')
+    body: jsonContentRequired(insertTasksSchema, 'The task to create'),
   },
   tags,
   responses: {
     [HttpStatusCodes.OK]: jsonContent(selectTasksSchema, 'List of tasks'),
     [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
       createErrorSchema(insertTasksSchema),
-      'The validation error(s)'
-    )
-  }
+      'The validation error(s)',
+    ),
+  },
+});
+
+export const getOne = createRoute({
+  path: '/tasks/{id}',
+  method: 'get',
+  request: {
+    params: IdParamsSchema,
+  },
+  tags,
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(selectTasksSchema, 'The task'),
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+      createErrorSchema(insertTasksSchema),
+      'Invalid ID error',
+    ),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      notFoundSchema,
+      'Task not found',
+    ),
+  },
+});
+
+export const patch = createRoute({
+  path: '/tasks/{id}',
+  method: 'patch',
+  request: {
+    params: IdParamsSchema,
+    body: jsonContentRequired(patchTaskSchema, 'The task to update'),
+  },
+  tags,
+  responses: {
+    [HttpStatusCodes.OK]: jsonContent(selectTasksSchema, 'The updated task'),
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      notFoundSchema,
+      'Task not found',
+    ),
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContentOneOf([createErrorSchema(patchTaskSchema), createErrorSchema(IdParamsSchema)], 'The validation error(s)'),
+  },
+});
+
+export const remove = createRoute({
+  path: '/tasks/{id}',
+  method: 'delete',
+  request: {
+    params: IdParamsSchema,
+  },
+  tags,
+  responses: {
+    [HttpStatusCodes.NO_CONTENT]: {
+      description: 'Task successfully deleted',
+    },
+    [HttpStatusCodes.NOT_FOUND]: jsonContent(
+      notFoundSchema,
+      'Task not found',
+    ),
+    [HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(createErrorSchema(IdParamsSchema), 'Invalid Id'),
+  },
 });
 
 export type ListRoute = typeof list;
 
 export type CreateRoute = typeof create;
+
+export type GetOneRoute = typeof getOne;
+
+export type PatchRoute = typeof patch;
+
+export type RemoveRoute = typeof remove;
